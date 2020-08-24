@@ -1,41 +1,32 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Unosquare.RaspberryIO;
 using Unosquare.RaspberryIO.Abstractions;
 
 namespace Herb.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
-    public class LightsController : ControllerBase
+    [ApiController]
+    public class WaterPumpsController : ControllerBase
     {
-
-        private readonly ILogger<LightsController> _logger;
-
-        public LightsController(ILogger<LightsController> logger)
-        {
-            _logger = logger;
-        }
-
         [AllowAnonymous]
         [HttpPost("on")]
         public IActionResult LightsOn()
         {
-            var pin = Pi.Gpio[BcmPin.Gpio02];
+            var pin = Pi.Gpio[BcmPin.Gpio03];
             pin.PinMode = GpioPinDriveMode.Output;
-            pin.Write(false);
-            return Content("Lights on");
+            pin.Write(true);
+            return Content("Pump on");
         }
 
         [AllowAnonymous]
         [HttpPost("off")]
         public IActionResult LightsOff()
         {
-            var pin = Pi.Gpio[BcmPin.Gpio02];
+            var pin = Pi.Gpio[BcmPin.Gpio03];
             pin.PinMode = GpioPinDriveMode.Output;
-            pin.Write(true);
-            return Content("Lights off");
+            pin.Write(false);
+            return Content("Pump off");
         }
     }
 }
