@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading;
 using Unosquare.RaspberryIO;
 using Unosquare.RaspberryIO.Abstractions;
@@ -63,6 +64,15 @@ namespace Herb
             var pin = Pi.Gpio[BcmPin.Gpio23];
             pin.PinMode = GpioPinDriveMode.Input;
             pin.RegisterInterruptCallback(EdgeDetection.FallingAndRisingEdge, CheckForMoisture);
+
+            // check if starting up light should be turned on or not
+            var dateNow = DateTime.UtcNow.Hour;
+            if (dateNow > 9 && dateNow < 21)
+            {
+                var lightsPin = Pi.Gpio[BcmPin.Gpio02];
+                lightsPin.PinMode = GpioPinDriveMode.Output;
+                lightsPin.Write(true);
+            }
         }
 
         public void OnStop()
@@ -89,7 +99,7 @@ namespace Herb
 
         public void CheckForMoisture()
         {
-            _logger.LogInformation("Inside low moist");
+            _logger.LogInformation("Inside moisture feedback");
             var sensor = Pi.Gpio[BcmPin.Gpio23].Read();
             _logger.LogInformation($"Sensor on pin 23: {sensor}");
 
@@ -109,7 +119,7 @@ namespace Herb
             }
             else
             {
-                _logger.LogInformation("no Water dectected");
+                _logger.LogInformation("No Water dectected");
                 _logger.LogInformation($"Pump in is set to: {Pi.Gpio[BcmPin.Gpio03].Read()}");
                 if (!Pi.Gpio[BcmPin.Gpio03].Read())
                 {
