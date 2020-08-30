@@ -16,6 +16,12 @@ namespace Herb.Controllers
         public LightsController(ILogger<LightsController> logger)
         {
             _logger = logger;
+            _logger.LogInformation("Lights controller reached");
+        }
+
+        public void Test()
+        {
+
         }
 
         [AllowAnonymous]
@@ -24,7 +30,15 @@ namespace Herb.Controllers
         {
             var pin = Pi.Gpio[BcmPin.Gpio02];
             pin.PinMode = GpioPinDriveMode.Output;
-            pin.Write(false);
+
+            if (pin.Read())
+            {
+                _logger.LogInformation("Lights already on.");
+                return Content("Lights already on.");
+            }
+
+            pin.Write(true);
+            _logger.LogInformation("Lights on pin.Write(true)");
             return Content("Lights on");
         }
 
@@ -34,7 +48,15 @@ namespace Herb.Controllers
         {
             var pin = Pi.Gpio[BcmPin.Gpio02];
             pin.PinMode = GpioPinDriveMode.Output;
-            pin.Write(true);
+
+            if (!pin.Read())
+            {
+                _logger.LogInformation("Lights already off.");
+                return Content("Lights already off.");
+            }
+
+            pin.Write(false);
+            _logger.LogInformation("Lights off reached..");
             return Content("Lights off");
         }
     }
